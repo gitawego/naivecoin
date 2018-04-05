@@ -1,8 +1,8 @@
-import * as CryptoJS from "crypto-js";
-import * as ecdsa from "elliptic";
-import * as _ from "lodash";
+import * as CryptoJS from 'crypto-js';
+import * as ecdsa from 'elliptic';
+import * as _ from 'lodash';
 
-const ec = new ecdsa.ec("secp256k1");
+const ec = new ecdsa.ec('secp256k1');
 
 const COINBASE_AMOUNT: number = 50;
 
@@ -51,11 +51,11 @@ class Transaction {
 const getTransactionId = (transaction: Transaction): string => {
   const txInContent: string = transaction.txIns
     .map((txIn: TxIn) => txIn.txOutId + txIn.txOutIndex)
-    .reduce((a, b) => a + b, "");
+    .reduce((a, b) => a + b, '');
 
   const txOutContent: string = transaction.txOuts
     .map((txOut: TxOut) => txOut.address + txOut.amount)
-    .reduce((a, b) => a + b, "");
+    .reduce((a, b) => a + b, '');
 
   return CryptoJS.SHA256(txInContent + txOutContent).toString();
 };
@@ -69,7 +69,7 @@ const validateTransaction = (
   }
 
   if (getTransactionId(transaction) !== transaction.id) {
-    console.log("invalid tx id: " + transaction.id);
+    console.log('invalid tx id: ' + transaction.id);
     return false;
   }
   const hasValidTxIns: boolean = transaction.txIns
@@ -77,7 +77,7 @@ const validateTransaction = (
     .reduce((a, b) => a && b, true);
 
   if (!hasValidTxIns) {
-    console.log("some of the txIns are invalid in tx: " + transaction.id);
+    console.log('some of the txIns are invalid in tx: ' + transaction.id);
     return false;
   }
 
@@ -91,7 +91,7 @@ const validateTransaction = (
 
   if (totalTxOutValues !== totalTxInValues) {
     console.log(
-      "totalTxOutValues !== totalTxInValues in tx: " + transaction.id
+      'totalTxOutValues !== totalTxInValues in tx: ' + transaction.id
     );
     return false;
   }
@@ -106,7 +106,7 @@ const validateBlockTransactions = (
 ): boolean => {
   const coinbaseTx = aTransactions[0];
   if (!validateCoinbaseTx(coinbaseTx, blockIndex)) {
-    console.log("invalid coinbase transaction: " + JSON.stringify(coinbaseTx));
+    console.log('invalid coinbase transaction: ' + JSON.stringify(coinbaseTx));
     return false;
   }
 
@@ -135,7 +135,7 @@ const hasDuplicates = (txIns: TxIn[]): boolean => {
   return _(groups)
     .map((value, key) => {
       if (value > 1) {
-        console.log("duplicate txIn: " + key);
+        console.log('duplicate txIn: ' + key);
         return true;
       } else {
         return false;
@@ -150,28 +150,28 @@ const validateCoinbaseTx = (
 ): boolean => {
   if (transaction == null) {
     console.log(
-      "the first transaction in the block must be coinbase transaction"
+      'the first transaction in the block must be coinbase transaction'
     );
     return false;
   }
   if (getTransactionId(transaction) !== transaction.id) {
-    console.log("invalid coinbase tx id: " + transaction.id);
+    console.log('invalid coinbase tx id: ' + transaction.id);
     return false;
   }
   if (transaction.txIns.length !== 1) {
-    console.log("one txIn must be specified in the coinbase transaction");
+    console.log('one txIn must be specified in the coinbase transaction');
     return false;
   }
   if (transaction.txIns[0].txOutIndex !== blockIndex) {
-    console.log("the txIn signature in coinbase tx must be the block height");
+    console.log('the txIn signature in coinbase tx must be the block height');
     return false;
   }
   if (transaction.txOuts.length !== 1) {
-    console.log("invalid number of txOuts in coinbase transaction");
+    console.log('invalid number of txOuts in coinbase transaction');
     return false;
   }
   if (transaction.txOuts[0].amount !== COINBASE_AMOUNT) {
-    console.log("invalid coinbase amount in coinbase transaction");
+    console.log('invalid coinbase amount in coinbase transaction');
     return false;
   }
   return true;
@@ -186,16 +186,16 @@ const validateTxIn = (
     uTxO => uTxO.txOutId === txIn.txOutId && uTxO.txOutIndex === txIn.txOutIndex
   );
   if (referencedUTxOut == null) {
-    console.log("referenced txOut not found: " + JSON.stringify(txIn));
+    console.log('referenced txOut not found: ' + JSON.stringify(txIn));
     return false;
   }
   const address = referencedUTxOut.address;
 
-  const key = ec.keyFromPublic(address, "hex");
+  const key = ec.keyFromPublic(address, 'hex');
   const validSignature: boolean = key.verify(transaction.id, txIn.signature);
   if (!validSignature) {
     console.log(
-      "invalid txIn signature: %s txId: %s address: %s",
+      'invalid txIn signature: %s txId: %s address: %s',
       txIn.signature,
       transaction.id,
       referencedUTxOut.address
@@ -225,8 +225,8 @@ const getCoinbaseTransaction = (
 ): Transaction => {
   const t = new Transaction();
   const txIn: TxIn = new TxIn();
-  txIn.signature = "";
-  txIn.txOutId = "";
+  txIn.signature = '';
+  txIn.txOutId = '';
   txIn.txOutIndex = blockIndex;
 
   t.txIns = [txIn];
@@ -250,19 +250,19 @@ const signTxIn = (
     aUnspentTxOuts
   );
   if (referencedUnspentTxOut == null) {
-    console.log("could not find referenced txOut");
+    console.log('could not find referenced txOut');
     throw Error();
   }
   const referencedAddress = referencedUnspentTxOut.address;
 
   if (getPublicKey(privateKey) !== referencedAddress) {
     console.log(
-      "trying to sign an input with private" +
-        " key that does not match the address that is referenced in txIn"
+      'trying to sign an input with private' +
+        ' key that does not match the address that is referenced in txIn'
     );
     throw Error();
   }
-  const key = ec.keyFromPrivate(privateKey, "hex");
+  const key = ec.keyFromPrivate(privateKey, 'hex');
   const signature: string = toHexString(key.sign(dataToSign).toDER());
 
   return signature;
@@ -284,7 +284,7 @@ const updateUnspentTxOuts = (
   const consumedTxOuts: UnspentTxOut[] = aTransactions
     .map(t => t.txIns)
     .reduce((a, b) => a.concat(b), [])
-    .map(txIn => new UnspentTxOut(txIn.txOutId, txIn.txOutIndex, "", 0));
+    .map(txIn => new UnspentTxOut(txIn.txOutId, txIn.txOutIndex, '', 0));
 
   const resultingUnspentTxOuts = aUnspentTxOuts
     .filter(
@@ -301,7 +301,7 @@ const processTransactions = (
   blockIndex: number
 ) => {
   if (!validateBlockTransactions(aTransactions, aUnspentTxOuts, blockIndex)) {
-    console.log("invalid block transactions");
+    console.log('invalid block transactions');
     return null;
   }
   return updateUnspentTxOuts(aTransactions, aUnspentTxOuts);
@@ -309,29 +309,29 @@ const processTransactions = (
 
 const toHexString = (byteArray): string => {
   return Array.from(byteArray, (byte: any) => {
-    return ("0" + (byte & 0xff).toString(16)).slice(-2);
-  }).join("");
+    return ('0' + (byte & 0xff).toString(16)).slice(-2);
+  }).join('');
 };
 
 const getPublicKey = (aPrivateKey: string): string => {
   return ec
-    .keyFromPrivate(aPrivateKey, "hex")
+    .keyFromPrivate(aPrivateKey, 'hex')
     .getPublic()
-    .encode("hex");
+    .encode('hex');
 };
 
 const isValidTxInStructure = (txIn: TxIn): boolean => {
   if (txIn == null) {
-    console.log("txIn is null");
+    console.log('txIn is null');
     return false;
-  } else if (typeof txIn.signature !== "string") {
-    console.log("invalid signature type in txIn");
+  } else if (typeof txIn.signature !== 'string') {
+    console.log('invalid signature type in txIn');
     return false;
-  } else if (typeof txIn.txOutId !== "string") {
-    console.log("invalid txOutId type in txIn");
+  } else if (typeof txIn.txOutId !== 'string') {
+    console.log('invalid txOutId type in txIn');
     return false;
-  } else if (typeof txIn.txOutIndex !== "number") {
-    console.log("invalid txOutIndex type in txIn");
+  } else if (typeof txIn.txOutIndex !== 'number') {
+    console.log('invalid txOutIndex type in txIn');
     return false;
   } else {
     return true;
@@ -340,16 +340,16 @@ const isValidTxInStructure = (txIn: TxIn): boolean => {
 
 const isValidTxOutStructure = (txOut: TxOut): boolean => {
   if (txOut == null) {
-    console.log("txOut is null");
+    console.log('txOut is null');
     return false;
-  } else if (typeof txOut.address !== "string") {
-    console.log("invalid address type in txOut");
+  } else if (typeof txOut.address !== 'string') {
+    console.log('invalid address type in txOut');
     return false;
   } else if (!isValidAddress(txOut.address)) {
-    console.log("invalid TxOut address");
+    console.log('invalid TxOut address');
     return false;
-  } else if (typeof txOut.amount !== "number") {
-    console.log("invalid amount type in txOut");
+  } else if (typeof txOut.amount !== 'number') {
+    console.log('invalid amount type in txOut');
     return false;
   } else {
     return true;
@@ -357,12 +357,12 @@ const isValidTxOutStructure = (txOut: TxOut): boolean => {
 };
 
 const isValidTransactionStructure = (transaction: Transaction) => {
-  if (typeof transaction.id !== "string") {
-    console.log("transactionId missing");
+  if (typeof transaction.id !== 'string') {
+    console.log('transactionId missing');
     return false;
   }
   if (!(transaction.txIns instanceof Array)) {
-    console.log("invalid txIns type in transaction");
+    console.log('invalid txIns type in transaction');
     return false;
   }
   if (
@@ -372,7 +372,7 @@ const isValidTransactionStructure = (transaction: Transaction) => {
   }
 
   if (!(transaction.txOuts instanceof Array)) {
-    console.log("invalid txIns type in transaction");
+    console.log('invalid txIns type in transaction');
     return false;
   }
 
@@ -390,13 +390,13 @@ const isValidTransactionStructure = (transaction: Transaction) => {
 const isValidAddress = (address: string): boolean => {
   if (address.length !== 130) {
     console.log(address);
-    console.log("invalid public key length");
+    console.log('invalid public key length');
     return false;
-  } else if (address.match("^[a-fA-F0-9]+$") === null) {
-    console.log("public key must contain only hex characters");
+  } else if (address.match('^[a-fA-F0-9]+$') === null) {
+    console.log('public key must contain only hex characters');
     return false;
-  } else if (!address.startsWith("04")) {
-    console.log("public key must start with 04");
+  } else if (!address.startsWith('04')) {
+    console.log('public key must start with 04');
     return false;
   }
   return true;

@@ -1,5 +1,5 @@
-import * as WebSocket from "ws";
-import { Server } from "ws";
+import * as WebSocket from 'ws';
+import { Server } from 'ws';
 import {
   addBlockToChain,
   Block,
@@ -8,9 +8,9 @@ import {
   handleReceivedTransaction,
   isValidBlockStructure,
   replaceChain
-} from "./blockchain";
-import { Transaction } from "./transaction";
-import { getTransactionPool } from "./transactionPool";
+} from './blockchain';
+import { Transaction } from './transaction';
+import { getTransactionPool } from './transactionPool';
 
 const sockets: WebSocket[] = [];
 
@@ -29,10 +29,10 @@ class Message {
 
 const initP2PServer = (p2pPort: number) => {
   const server: Server = new WebSocket.Server({ port: p2pPort });
-  server.on("connection", (ws: WebSocket) => {
+  server.on('connection', (ws: WebSocket) => {
     initConnection(ws);
   });
-  console.log("listening websocket p2p port on: " + p2pPort);
+  console.log('listening websocket p2p port on: ' + p2pPort);
 };
 
 const getSockets = () => sockets;
@@ -59,14 +59,14 @@ const JSONToObject = <T>(data: string): T => {
 };
 
 const initMessageHandler = (ws: WebSocket) => {
-  ws.on("message", (data: string) => {
+  ws.on('message', (data: string) => {
     try {
       const message: Message = JSONToObject<Message>(data);
       if (message === null) {
-        console.log("could not parse received JSON message: " + data);
+        console.log('could not parse received JSON message: ' + data);
         return;
       }
-      console.log("Received message: %s", JSON.stringify(message));
+      console.log('Received message: %s', JSON.stringify(message));
       switch (message.type) {
         case MessageType.QUERY_LATEST:
           write(ws, responseLatestMsg());
@@ -78,7 +78,7 @@ const initMessageHandler = (ws: WebSocket) => {
           const receivedBlocks: Block[] = JSONToObject<Block[]>(message.data);
           if (receivedBlocks === null) {
             console.log(
-              "invalid blocks received: %s",
+              'invalid blocks received: %s',
               JSON.stringify(message.data)
             );
             break;
@@ -94,7 +94,7 @@ const initMessageHandler = (ws: WebSocket) => {
           >(message.data);
           if (receivedTransactions === null) {
             console.log(
-              "invalid transaction received: %s",
+              'invalid transaction received: %s',
               JSON.stringify(message.data)
             );
             break;
@@ -154,29 +154,29 @@ const responseTransactionPoolMsg = (): Message => ({
 
 const initErrorHandler = (ws: WebSocket) => {
   const closeConnection = (myWs: WebSocket) => {
-    console.log("connection failed to peer: " + myWs.url);
+    console.log('connection failed to peer: ' + myWs.url);
     sockets.splice(sockets.indexOf(myWs), 1);
   };
-  ws.on("close", () => closeConnection(ws));
-  ws.on("error", () => closeConnection(ws));
+  ws.on('close', () => closeConnection(ws));
+  ws.on('error', () => closeConnection(ws));
 };
 
 const handleBlockchainResponse = (receivedBlocks: Block[]) => {
   if (receivedBlocks.length === 0) {
-    console.log("received block chain size of 0");
+    console.log('received block chain size of 0');
     return;
   }
   const latestBlockReceived: Block = receivedBlocks[receivedBlocks.length - 1];
   if (!isValidBlockStructure(latestBlockReceived)) {
-    console.log("block structuture not valid");
+    console.log('block structuture not valid');
     return;
   }
   const latestBlockHeld: Block = getLatestBlock();
   if (latestBlockReceived.index > latestBlockHeld.index) {
     console.log(
-      "blockchain possibly behind. We got: " +
+      'blockchain possibly behind. We got: ' +
         latestBlockHeld.index +
-        " Peer got: " +
+        ' Peer got: ' +
         latestBlockReceived.index
     );
     if (latestBlockHeld.hash === latestBlockReceived.previousHash) {
@@ -184,15 +184,15 @@ const handleBlockchainResponse = (receivedBlocks: Block[]) => {
         broadcast(responseLatestMsg());
       }
     } else if (receivedBlocks.length === 1) {
-      console.log("We have to query the chain from our peer");
+      console.log('We have to query the chain from our peer');
       broadcast(queryAllMsg());
     } else {
-      console.log("Received blockchain is longer than current blockchain");
+      console.log('Received blockchain is longer than current blockchain');
       replaceChain(receivedBlocks);
     }
   } else {
     console.log(
-      "Received  blockchain is not longer than held  blockchain. Do nothing"
+      'Received  blockchain is not longer than held  blockchain. Do nothing'
     );
   }
 };
@@ -203,11 +203,11 @@ const broadcastLatest = (): void => {
 
 const connectToPeers = (newPeer: string): void => {
   const ws: WebSocket = new WebSocket(newPeer);
-  ws.on("open", () => {
+  ws.on('open', () => {
     initConnection(ws);
   });
-  ws.on("error", () => {
-    console.log("connection failed");
+  ws.on('error', () => {
+    console.log('connection failed');
   });
 };
 

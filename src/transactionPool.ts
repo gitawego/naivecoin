@@ -1,10 +1,10 @@
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import {
   Transaction,
   TxIn,
   UnspentTxOut,
   validateTransaction
-} from "./transaction";
+} from './transaction';
 
 let transactionPool: Transaction[] = [];
 
@@ -17,13 +17,13 @@ const addToTransactionPool = (
   unspentTxOuts: UnspentTxOut[]
 ) => {
   if (!validateTransaction(tx, unspentTxOuts)) {
-    throw Error("Trying to add invalid tx to pool");
+    throw Error('Trying to add invalid tx to pool');
   }
 
   if (!isValidTxForPool(tx, transactionPool)) {
-    throw Error("Trying to add invalid tx to pool");
+    throw Error('Trying to add invalid tx to pool');
   }
-  console.log("adding to txPool: %s", JSON.stringify(tx));
+  console.log('adding to txPool: %s', JSON.stringify(tx));
   transactionPool.push(tx);
 };
 
@@ -46,7 +46,7 @@ const updateTransactionPool = (unspentTxOuts: UnspentTxOut[]) => {
   }
   if (invalidTxs.length > 0) {
     console.log(
-      "removing the following transactions from txPool: %s",
+      'removing the following transactions from txPool: %s',
       JSON.stringify(invalidTxs)
     );
     transactionPool = _.without(transactionPool, ...invalidTxs);
@@ -77,7 +77,7 @@ const isValidTxForPool = (
 
   for (const txIn of tx.txIns) {
     if (containsTxIn(txPoolIns, txIn)) {
-      console.log("txIn already found in the txPool");
+      console.log('txIn already found in the txPool');
       return false;
     }
   }

@@ -2,7 +2,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "ES2015",
-    "sourceMap": true
+    "sourceMap": true,
+    "importHelpers": true,
+    "outDir": "dist"
   },
   "include": [
     "src/main.ts",
@@ -13,7 +15,5 @@
     "src/wallet.ts",
     "src/transactionPool.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

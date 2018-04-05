@@ -3,21 +3,23 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "prestart": "npm run compile",
-    "start": "node src/main.js",
-    "compile": "tsc"
+    "//prestart": "npm run compile",
+    "start": "node dist/main.js",
+    "compile": "tsc",
+    "compile:watch": "tsc --watch"
   },
   "dependencies": {
     "axios": "^0.16.2",
     "body-parser": "^1.15.2",
-    "cross-env": "^5.0.1",
+    "cross-env": "^5.1.4",
     "crypto-js": "^3.1.6",
     "elliptic": "^6.4.0",
     "express": "~4.11.1",
     "lodash": "^4.17.4",
-    "ts-node": "^3.2.0",
-    "typescript": "^2.4.1",
-    "ws": "^3.0.0"
+    "ts-lib": "^0.0.5",
+    "ts-node": "^5.0.1",
+    "typescript": "^2.8.1",
+    "ws": "^5.1.1"
   },
   "engines": {
     "node": ">=8.5.0"

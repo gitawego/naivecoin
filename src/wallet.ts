@@ -1,6 +1,6 @@
-import { ec } from "elliptic";
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from "fs";
-import * as _ from "lodash";
+import { ec } from 'elliptic';
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
+import * as _ from 'lodash';
 import {
   getPublicKey,
   getTransactionId,
@@ -9,20 +9,20 @@ import {
   TxIn,
   TxOut,
   UnspentTxOut
-} from "./transaction";
+} from './transaction';
 
-const EC = new ec("secp256k1");
-const privateKeyLocation = process.env.PRIVATE_KEY || "node/wallet/private_key";
+const EC = new ec('secp256k1');
+const privateKeyLocation = process.env.PRIVATE_KEY || 'node/wallet/private_key';
 
 const getPrivateFromWallet = (): string => {
-  const buffer = readFileSync(privateKeyLocation, "utf8");
+  const buffer = readFileSync(privateKeyLocation, 'utf8');
   return buffer.toString();
 };
 
 const getPublicFromWallet = (): string => {
   const privateKey = getPrivateFromWallet();
-  const key = EC.keyFromPrivate(privateKey, "hex");
-  return key.getPublic().encode("hex");
+  const key = EC.keyFromPrivate(privateKey, 'hex');
+  return key.getPublic().encode('hex');
 };
 
 const generatePrivateKey = (): string => {
@@ -40,7 +40,7 @@ const initWallet = () => {
 
   writeFileSync(privateKeyLocation, newPrivateKey);
   console.log(
-    "new wallet with private key created to : %s",
+    'new wallet with private key created to : %s',
     privateKeyLocation
   );
 };
@@ -83,10 +83,10 @@ const findTxOutsForAmount = (
   }
 
   const eMsg =
-    "Cannot create transaction from the available unspent transaction outputs." +
-    " Required amount:" +
+    'Cannot create transaction from the available unspent transaction outputs.' +
+    ' Required amount:' +
     amount +
-    ". Available unspentTxOuts:" +
+    '. Available unspentTxOuts:' +
     JSON.stringify(myUnspentTxOuts);
   throw Error(eMsg);
 };
@@ -139,7 +139,7 @@ const createTransaction = (
   unspentTxOuts: UnspentTxOut[],
   txPool: Transaction[]
 ): Transaction => {
-  console.log("txPool: %s", JSON.stringify(txPool));
+  console.log('txPool: %s', JSON.stringify(txPool));
   const myAddress: string = getPublicKey(privateKey);
   const myUnspentTxOutsA = unspentTxOuts.filter(
     (uTxO: UnspentTxOut) => uTxO.address === myAddress
